@@ -1,28 +1,22 @@
 # 🤖 Resume_AI_Bot - AI Resume & Job Description Matcher
 
 A production-structured, full-stack AI-powered Telegram Bot and FastAPI REST API for multi-resume screening, skill match analysis, weighted match score calculation, ATS-style keyword evaluation, 1-line improvement suggestions, and clickable course recommendations.
-
-[![GitHub Repository](https://img.shields.io/badge/GitHub-Resume__AI__Bot-blue?logo=github)](https://github.com/NKumar-B/Resume_AI_Bot.git)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
-[![Telegram Bot API](https://img.shields.io/badge/Telegram_Bot-v22.0%2B-26A5E4.svg)](https://core.telegram.org/bots/api)
-
 ---
 
 ## 🌟 Features
 
-- 📄 **Multi-Format Job Description Input**: Accepts JD as PDF, DOCX, or pasted plain text message.
-- 📁 **Consolidated Multi-Resume Upload**: Upload multiple candidate PDF or DOCX resumes in a single Telegram session without message spam.
-- 🎯 **Transparent Resume-to-JD Match Score (0–100%)**: Weighted scoring based on skill match (50%), experience (20%), project relevance (15%), education (10%), and ATS alignment (5%).
-- 📊 **Detailed Score Basis & Breakdown**: Displays exact points earned for Skill Match (50), Experience (20), Projects (15), Education (10), and ATS Alignment (5).
-- ✅ **Matched Skills Identification**: Identifies explicit skills present in both JD and resume.
-- ❌ **Skill Mismatch & Gaps**: Highlights missing required skills using neutral wording ("Not found in resume").
-- 💡 **Actionable 1-Line Improvement Suggestions**: Exactly 3 concise, single-sentence career improvement recommendations per candidate.
-- 🎓 **Targeted Course Recommendations**: Exactly 3 relevant learning resources with clickable URLs from reputable providers (Coursera, Udemy, edX, AWS, Microsoft, etc.).
-- 📊 **Final Comparative Summary**: Formatted summary table ranking all processed candidates by match score.
-- ⚡ **Interactive Telegram Buttons**: Tap-to-analyze buttons (`[ ⚡ ANALYZE RESUMES NOW ]`, `[ 🔄 Start New Job Description ]`).
-- 🤖 **AI Engine with Resilient Fallback**: Supports OpenRouter / OpenAI API (`OPENROUTER_API_KEY`) with an automatic fast heuristic fallback system if AI API rate limits or delays occur.
-- 🔌 **Decoupled Architecture & REST API**: Core AI analysis engine is independent of Telegram, exposed via FastAPI (`POST /analyze`) for future React/WhatsApp/Discord integrations.
+- **Multi-Format Job Description Input**: Accepts JD as PDF, DOCX, or pasted plain text message.
+- **Consolidated Multi-Resume Upload**: Upload multiple candidate PDF or DOCX resumes in a single Telegram session without message spam.
+- **Transparent Resume-to-JD Match Score (0–100%)**: Weighted scoring based on skill match (50%), experience (20%), project relevance (15%), education (10%), and ATS alignment (5%).
+- **Detailed Score Basis & Breakdown**: Displays exact points earned for Skill Match (50), Experience (20), Projects (15), Education (10), and ATS Alignment (5).
+- **Matched Skills Identification**: Identifies explicit skills present in both JD and resume.
+- **Skill Mismatch & Gaps**: Highlights missing required skills using neutral wording ("Not found in resume").
+- **Actionable 1-Line Improvement Suggestions**: Exactly 3 concise, single-sentence career improvement recommendations per candidate.
+- **Targeted Course Recommendations**: Exactly 3 relevant learning resources with clickable URLs from reputable providers (Coursera, Udemy, edX, AWS, Microsoft, etc.).
+- **Final Comparative Summary**: Formatted summary table ranking all processed candidates by match score.
+- **Interactive Telegram Buttons**: Tap-to-analyze buttons (`[ ⚡ ANALYZE RESUMES NOW ]`, `[ 🔄 Start New Job Description ]`).
+- **AI Engine with Resilient Fallback**: Supports OpenRouter / OpenAI API (`OPENROUTER_API_KEY`) with an automatic fast heuristic fallback system if AI API rate limits or delays occur.
+- **Decoupled Architecture & REST API**: Core AI analysis engine is independent of Telegram, exposed via FastAPI (`POST /analyze`) for future React/WhatsApp/Discord integrations.
 
 ---
 
