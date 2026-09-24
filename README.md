@@ -1,9 +1,9 @@
-# 🤖 Resume_AI_Bot - AI Resume & Job Description Matcher
+# Resume_AI_Bot - AI Resume & Job Description Matcher
 
 A production-structured, full-stack AI-powered Telegram Bot and FastAPI REST API for multi-resume screening, skill match analysis, weighted match score calculation, ATS-style keyword evaluation, 1-line improvement suggestions, and clickable course recommendations.
 ---
 
-## 🌟 Features
+## Features
 
 - **Multi-Format Job Description Input**: Accepts JD as PDF, DOCX, or pasted plain text message.
 - **Consolidated Multi-Resume Upload**: Upload multiple candidate PDF or DOCX resumes in a single Telegram session without message spam.
@@ -20,7 +20,7 @@ A production-structured, full-stack AI-powered Telegram Bot and FastAPI REST API
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Resume_AI_Bot/
@@ -44,7 +44,7 @@ Resume_AI_Bot/
 
 ---
 
-## 🚀 Quick Start & Installation (Windows PowerShell)
+## Quick Start & Installation (Windows PowerShell)
 
 1. **Clone the repository**:
    ```powershell
@@ -65,7 +65,7 @@ Resume_AI_Bot/
 
 ---
 
-## 🔑 Environment Configuration
+## Environment Configuration
 
 1. Copy `.env.example` to `.env`:
    ```powershell
@@ -89,7 +89,7 @@ Resume_AI_Bot/
 
 ---
 
-## 🤖 How to Create a Telegram Bot
+## How to Create a Telegram Bot
 
 1. Open Telegram and search for **@BotFather**.
 2. Send `/newbot` to BotFather.
@@ -99,7 +99,7 @@ Resume_AI_Bot/
 
 ---
 
-## 🏃 Running the Application
+## Running the Application
 
 ### Option A: Run Telegram Bot
 To start the Telegram bot in polling mode:
@@ -120,7 +120,7 @@ Access the interactive API documentation at: `http://localhost:8000/docs`
 
 ---
 
-## 📱 Telegram Mobile Workflow
+## Telegram Mobile Workflow
 
 1. Open **Telegram** on your mobile phone and search for your bot (e.g., `@NithinResumeMatcherBot`).
 2. Send **/start** to initialize the session.
@@ -132,7 +132,7 @@ Access the interactive API documentation at: `http://localhost:8000/docs`
 
 ---
 
-## 🔒 Security & Privacy Notice
+## Security & Privacy Notice
 
 - **Temporary Processing**: Uploaded files are parsed in temporary buffers and are not permanently stored or published.
 - **Session Isolation**: Each Telegram user has an isolated session. Candidate data is never shared across users.
@@ -140,7 +140,7 @@ Access the interactive API documentation at: `http://localhost:8000/docs`
 
 ---
 
-## ☁️ Deployment to Render
+## Deployment to Render
 
 To deploy this application to Render:
 
