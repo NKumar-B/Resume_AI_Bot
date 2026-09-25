@@ -1,6 +1,25 @@
 # Resume_AI_Bot - AI Resume & Job Description Matcher
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=flat-square&logo=fastapi&logoColor=white)
+![Telegram](https://img.shields.io/badge/Telegram-Bot_API-26A5E4?style=flat-square&logo=telegram&logoColor=white)
+![WhatsApp](https://img.shields.io/badge/WhatsApp-Cloud_API-25D366?style=flat-square&logo=whatsapp&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI%2FOpenRouter-GPT--4o--mini-412991?style=flat-square&logo=openai&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-4c1?style=flat-square)
+
 A production-structured, multi-channel AI-powered platform supporting **Telegram Bot**, **WhatsApp Bot**, and a **FastAPI REST API** for multi-resume screening, automatic document type classification, weighted match score calculation, ATS-style keyword evaluation, 1-line improvement suggestions, and clickable course recommendations.
+
+---
+
+## 🛠️ Technologies Used
+
+| Category | Badges |
+| :--- | :--- |
+| **Language** | ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white) |
+| **Web Framework** | ![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white) ![Uvicorn](https://img.shields.io/badge/Uvicorn-ASGI_Server-4051B5?style=for-the-badge&logo=uvicorn&logoColor=white) |
+| **Integrations** | ![Telegram](https://img.shields.io/badge/Telegram_Bot_API-v20%2B-26A5E4?style=for-the-badge&logo=telegram&logoColor=white) ![WhatsApp](https://img.shields.io/badge/WhatsApp_Cloud_API-v19.0-25D366?style=for-the-badge&logo=whatsapp&logoColor=white) |
+| **AI Engine** | ![OpenAI](https://img.shields.io/badge/OpenAI_/_OpenRouter-GPT--4o--mini-412991?style=for-the-badge&logo=openai&logoColor=white) |
+| **License** | ![License](https://img.shields.io/badge/License-MIT-4c1?style=for-the-badge) |
 
 ---
 
