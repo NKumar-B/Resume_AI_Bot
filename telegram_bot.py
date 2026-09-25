@@ -1,9 +1,11 @@
 import os
+import sys
 import html
 import logging
 import asyncio
 from pathlib import Path
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.request import HTTPXRequest
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -13,11 +15,12 @@ from telegram.ext import (
     filters
 )
 
-from config import TELEGRAM_BOT_TOKEN, MAX_FILE_SIZE_BYTES, validate_config
+from config import TELEGRAM_BOT_TOKEN, TELEGRAM_API_BASE_URL, TELEGRAM_PROXY, MAX_FILE_SIZE_BYTES, validate_config
 from resume_parser import parse_resume
 from jd_parser import parse_job_description
 from ai_analyzer import analyze_resume
 from formatter import format_resume_analysis, format_final_summary
+from doc_classifier import classify_document
 
 logger = logging.getLogger("TelegramBot")
 
@@ -284,26 +287,41 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    if session["state"] == "WAITING_FOR_JD":
-        parsed_jd = parse_job_description(bytes(file_bytes), filename=filename)
-        if not parsed_jd["success"]:
-            await update.message.reply_text(
-                f"❌ Failed to parse Job Description file: {parsed_jd['error']}"
-            )
-            return
+    parsed_res = parse_resume(bytes(file_bytes), filename=filename)
+    if not parsed_res["success"]:
+        await update.message.reply_text(
+            f"❌ Unable to read '{filename}'.\n{parsed_res['error']}"
+        )
+        return
 
+    raw_text = parsed_res["text"]
+    classification = classify_document(raw_text, filename=filename)
+    doc_type = classification["type"]
+
+    if doc_type == "JD":
+        parsed_jd = parse_job_description(bytes(file_bytes), filename=filename)
         session["jd_text"] = parsed_jd["text"]
         session["jd_filename"] = filename
         session["state"] = "WAITING_FOR_RESUMES"
 
-        await update.message.reply_text(
-            "✅ <b>Job Description received successfully.</b>\n\n"
-            "Now upload one or more resumes.\n"
-            "📎 <i>Use the paperclip icon below to select and send PDF or DOCX file(s).</i>",
-            parse_mode="HTML"
-        )
+        if not session["resumes"]:
+            await update.message.reply_text(
+                f"✅ <b>Job Description Identified & Received.</b>\n\n"
+                f"📌 <b>Position:</b> {html.escape(parsed_jd['title'])}\n"
+                f"📁 <b>File:</b> <code>{html.escape(filename)}</code>\n\n"
+                f"Now upload one or more candidate <b>Resumes</b> (PDF/DOCX).\n"
+                f"📎 <i>Use the paperclip icon below to select and send resume file(s).</i>",
+                parse_mode="HTML"
+            )
+        else:
+            await update.message.reply_text(
+                f"✅ <b>Job Description Updated:</b> <b>{html.escape(parsed_jd['title'])}</b>\n\n"
+                f"You currently have {len(session['resumes'])} resume(s) in queue.",
+                parse_mode="HTML"
+            )
+            await update_resume_status_message(update, context, session)
 
-    elif session["state"] in ["WAITING_FOR_RESUMES", "ANALYZING"]:
+    elif doc_type == "RESUME":
         existing_names = [r["filename"].lower() for r in session["resumes"]]
         if filename.lower() in existing_names:
             count = 1
@@ -315,21 +333,51 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 new_filename = f"{stem}_{count}{ext_str}"
             filename = new_filename
 
-        parsed_res = parse_resume(bytes(file_bytes), filename=filename)
-        if not parsed_res["success"]:
-            await update.message.reply_text(
-                f"❌ Unable to read '{filename}'.\n{parsed_res['error']}"
-            )
-            return
+        candidate_name = classification.get("candidate_name") or parsed_res.get("candidate_name") or "Not detected"
+        if candidate_name == "Not detected":
+            candidate_name = parsed_res.get("candidate_name", "Not detected")
 
         session["resumes"].append({
             "filename": filename,
-            "text": parsed_res["text"],
-            "candidate_name": parsed_res["candidate_name"]
+            "text": raw_text,
+            "candidate_name": candidate_name
         })
 
-        # Dynamically update consolidated status message without individual message spam
-        await update_resume_status_message(update, context, session)
+        if not session["jd_text"]:
+            session["state"] = "WAITING_FOR_JD"
+            await update.message.reply_text(
+                f"📄 <b>Resume Identified & Queued:</b> <code>{html.escape(filename)}</code>\n"
+                f"👤 <b>Candidate:</b> {html.escape(candidate_name)}\n\n"
+                f"⚠️ <b>Job Description Required!</b>\n"
+                f"I detected that you uploaded a Resume. However, no Job Description has been provided yet.\n\n"
+                f"Please upload or paste a <b>Job Description</b> so I can perform resume analysis.",
+                parse_mode="HTML"
+            )
+        else:
+            session["state"] = "WAITING_FOR_RESUMES"
+            await update_resume_status_message(update, context, session)
+
+    else:
+        # Fallback if state is WAITING_FOR_JD
+        if session["state"] == "WAITING_FOR_JD" and not session["jd_text"]:
+            parsed_jd = parse_job_description(bytes(file_bytes), filename=filename)
+            session["jd_text"] = parsed_jd["text"]
+            session["jd_filename"] = filename
+            session["state"] = "WAITING_FOR_RESUMES"
+            await update.message.reply_text(
+                f"✅ <b>Job Description Received.</b>\n\n"
+                f"📌 <b>Position:</b> {html.escape(parsed_jd['title'])}\n"
+                f"📁 <b>File:</b> <code>{html.escape(filename)}</code>\n\n"
+                f"Now upload candidate resume(s).",
+                parse_mode="HTML"
+            )
+        else:
+            session["resumes"].append({
+                "filename": filename,
+                "text": raw_text,
+                "candidate_name": parsed_res.get("candidate_name", "Not detected")
+            })
+            await update_resume_status_message(update, context, session)
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -338,11 +386,17 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session = get_user_session(user_id)
     text = update.message.text.strip()
 
-    if session["state"] == "WAITING_FOR_JD":
+    if not text:
+        return
+
+    classification = classify_document(text, filename="Pasted_Text.txt")
+    doc_type = classification["type"]
+
+    if doc_type == "JD":
         parsed_jd = parse_job_description(text, filename="Pasted_JD.txt")
         if not parsed_jd["success"]:
             await update.message.reply_text(
-                f"❌ Unable to read Job Description: {parsed_jd['error']}"
+                f"❌ Unable to parse Job Description text: {parsed_jd['error']}"
             )
             return
 
@@ -350,22 +404,88 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         session["jd_filename"] = "Pasted Job Description"
         session["state"] = "WAITING_FOR_RESUMES"
 
-        await update.message.reply_text(
-            "✅ <b>Job Description received successfully.</b>\n\n"
-            "Now upload one or more resumes.\n"
-            "📎 <i>Use the paperclip icon below to select and send PDF or DOCX file(s).</i>",
-            parse_mode="HTML"
-        )
-    elif session["state"] == "WAITING_FOR_RESUMES":
-        await update_resume_status_message(update, context, session)
+        if not session["resumes"]:
+            await update.message.reply_text(
+                f"✅ <b>Job Description Identified & Received.</b>\n\n"
+                f"📌 <b>Position:</b> {html.escape(parsed_jd['title'])}\n\n"
+                f"Now upload one or more candidate resumes.\n"
+                f"📎 <i>Use the paperclip icon below to select and send PDF or DOCX file(s).</i>",
+                parse_mode="HTML"
+            )
+        else:
+            await update.message.reply_text(
+                f"✅ <b>Job Description Updated:</b> <b>{html.escape(parsed_jd['title'])}</b>\n\n"
+                f"You currently have {len(session['resumes'])} resume(s) in queue.",
+                parse_mode="HTML"
+            )
+            await update_resume_status_message(update, context, session)
+
+    elif doc_type == "RESUME":
+        candidate_name = classification.get("candidate_name", "Not detected")
+        res_filename = f"Pasted_Resume_{len(session['resumes']) + 1}.txt"
+
+        session["resumes"].append({
+            "filename": res_filename,
+            "text": text,
+            "candidate_name": candidate_name
+        })
+
+        if not session["jd_text"]:
+            session["state"] = "WAITING_FOR_JD"
+            await update.message.reply_text(
+                f"📄 <b>Pasted Resume Identified & Queued.</b>\n"
+                f"👤 <b>Candidate:</b> {html.escape(candidate_name)}\n\n"
+                f"⚠️ <b>Job Description Required!</b>\n"
+                f"You provided a Resume, but no Job Description has been provided yet.\n\n"
+                f"Please upload or paste a <b>Job Description</b> to proceed with analysis.",
+                parse_mode="HTML"
+            )
+        else:
+            session["state"] = "WAITING_FOR_RESUMES"
+            await update_resume_status_message(update, context, session)
+
+    else:
+        # Fallback if state is WAITING_FOR_JD
+        if not session["jd_text"]:
+            parsed_jd = parse_job_description(text, filename="Pasted_JD.txt")
+            session["jd_text"] = parsed_jd["text"]
+            session["jd_filename"] = "Pasted Job Description"
+            session["state"] = "WAITING_FOR_RESUMES"
+            await update.message.reply_text(
+                f"✅ <b>Job Description received.</b>\n\n"
+                f"📌 <b>Position:</b> {html.escape(parsed_jd['title'])}\n\n"
+                f"Now upload one or more resumes.",
+                parse_mode="HTML"
+            )
+        else:
+            await update_resume_status_message(update, context, session)
 
 
 def build_application():
-    """Build python-telegram-bot application instance."""
+    """Build python-telegram-bot application instance with robust SSL and Proxy handling."""
     if not TELEGRAM_BOT_TOKEN:
         raise ValueError("TELEGRAM_BOT_TOKEN is not set in environment or .env file.")
 
-    app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+    request_kwargs = {
+        "connection_pool_size": 8,
+        "read_timeout": 30.0,
+        "write_timeout": 30.0,
+        "connect_timeout": 30.0,
+        "pool_timeout": 30.0,
+        "httpx_kwargs": {"verify": False}
+    }
+
+    if TELEGRAM_PROXY:
+        request_kwargs["proxy"] = TELEGRAM_PROXY
+
+    request = HTTPXRequest(**request_kwargs)
+
+    builder = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).request(request)
+
+    if TELEGRAM_API_BASE_URL:
+        builder = builder.base_url(TELEGRAM_API_BASE_URL)
+
+    app = builder.build()
 
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("help", help_command))
@@ -381,15 +501,37 @@ def build_application():
 
 def run_bot():
     """Start Telegram Bot polling mode."""
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
     logger.info("Starting Telegram Bot...")
     is_valid, errors = validate_config(require_telegram=True, require_ai=False)
     if not is_valid:
         print("\n".join(errors))
         return
 
-    app = build_application()
-    print("🤖 Telegram Bot is running... Press Ctrl+C to stop.")
-    app.run_polling()
+    try:
+        app = build_application()
+        logger.info("Telegram Bot is running... Press Ctrl+C to stop.")
+        print("Telegram Bot is running... Press Ctrl+C to stop.")
+        app.run_polling()
+    except Exception as e:
+        err_str = str(e)
+        if "FortiGate" in err_str or "Application Control" in err_str or "Application Blocked" in err_str or "2a310b08" in err_str or "NetworkError" in err_str:
+            print("\n" + "="*60)
+            print("❌ TELEGRAM API BLOCKED BY NETWORK FIREWALL (FortiGate)")
+            print("="*60)
+            print("Your network Wi-Fi/firewall is blocking outbound access to https://api.telegram.org.")
+            print("\nOption 1: Switch Wi-Fi or connect to a Personal Mobile Hotspot / VPN.")
+            print("Option 2: Run the local REST API server instead:")
+            print("          .\\.venv\\Scripts\\python.exe app.py")
+            print("Option 3: Set a HTTP/SOCKS5 proxy in .env (TELEGRAM_PROXY=http://...)")
+            print("="*60 + "\n")
+        else:
+            logger.exception(f"Error starting Telegram bot: {e}")
+            print(f"❌ Error starting Telegram bot: {e}")
 
 
 if __name__ == "__main__":

@@ -15,8 +15,15 @@ BASE_DIR = Path(__file__).resolve().parent
 ENV_PATH = BASE_DIR / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
 
-# Environment Variable Configurations
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+TELEGRAM_API_BASE_URL = os.getenv("TELEGRAM_API_BASE_URL", "").strip()
+TELEGRAM_PROXY = os.getenv("TELEGRAM_PROXY", "").strip()
+
+# WhatsApp Cloud API Configurations
+WHATSAPP_API_TOKEN = os.getenv("WHATSAPP_API_TOKEN", "").strip()
+WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "").strip()
+WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "resume_bot_verify_token").strip()
+WHATSAPP_API_VERSION = os.getenv("WHATSAPP_API_VERSION", "v19.0").strip()
 
 # OpenRouter / OpenAI API Key support
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", os.getenv("OPENAI_API_KEY", "")).strip()
