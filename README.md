@@ -1,5 +1,7 @@
 # Resume_AI_Bot - AI Resume & Job Description Matcher
 
+A production-structured, multi-channel AI-powered platform supporting **Telegram Bot**, **WhatsApp Bot**, and a **FastAPI REST API** for multi-resume screening, automatic document type classification, weighted match score calculation, ATS-style keyword evaluation, 1-line improvement suggestions, and clickable course recommendations.
+
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![Telegram](https://img.shields.io/badge/Telegram-Bot_API-26A5E4?style=flat-square&logo=telegram&logoColor=white)
@@ -7,23 +9,9 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI%2FOpenRouter-GPT--4o--mini-412991?style=flat-square&logo=openai&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-4c1?style=flat-square)
 
-A production-structured, multi-channel AI-powered platform supporting **Telegram Bot**, **WhatsApp Bot**, and a **FastAPI REST API** for multi-resume screening, automatic document type classification, weighted match score calculation, ATS-style keyword evaluation, 1-line improvement suggestions, and clickable course recommendations.
-
 ---
 
-## 🛠️ Technologies Used
-
-| Category | Badges |
-| :--- | :--- |
-| **Language** | ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white) |
-| **Web Framework** | ![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white) ![Uvicorn](https://img.shields.io/badge/Uvicorn-ASGI_Server-4051B5?style=for-the-badge&logo=uvicorn&logoColor=white) |
-| **Integrations** | ![Telegram](https://img.shields.io/badge/Telegram_Bot_API-v20%2B-26A5E4?style=for-the-badge&logo=telegram&logoColor=white) ![WhatsApp](https://img.shields.io/badge/WhatsApp_Cloud_API-v19.0-25D366?style=for-the-badge&logo=whatsapp&logoColor=white) |
-| **AI Engine** | ![OpenAI](https://img.shields.io/badge/OpenAI_/_OpenRouter-GPT--4o--mini-412991?style=for-the-badge&logo=openai&logoColor=white) |
-| **License** | ![License](https://img.shields.io/badge/License-MIT-4c1?style=for-the-badge) |
-
----
-
-## 🌟 Key Features
+## Key Features
 
 - **Multi-Channel Platform**: Simultaneous support for **Telegram Bot**, **WhatsApp Bot**, and **REST API**.
 - **Automatic Document Type Classification**: Smart classifier (`doc_classifier.py`) that automatically identifies whether an uploaded file or text is a **Job Description (JD)** or a **Resume/CV**, ensuring JDs are taken as JDs only and Resumes as Resumes only without state mix-ups.
@@ -39,7 +27,7 @@ A production-structured, multi-channel AI-powered platform supporting **Telegram
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 Resume_AI_Bot/
@@ -65,7 +53,19 @@ Resume_AI_Bot/
 
 ---
 
-## 🚀 Quick Start & Installation (Windows PowerShell)
+## Technologies Used
+
+| Category | Badges |
+| :--- | :--- |
+| **Language** | ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white) |
+| **Web Framework** | ![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white) ![Uvicorn](https://img.shields.io/badge/Uvicorn-ASGI_Server-4051B5?style=for-the-badge&logo=uvicorn&logoColor=white) |
+| **Integrations** | ![Telegram](https://img.shields.io/badge/Telegram_Bot_API-v20%2B-26A5E4?style=for-the-badge&logo=telegram&logoColor=white) ![WhatsApp](https://img.shields.io/badge/WhatsApp_Cloud_API-v19.0-25D366?style=for-the-badge&logo=whatsapp&logoColor=white) |
+| **AI Engine** | ![OpenAI](https://img.shields.io/badge/OpenAI_/_OpenRouter-GPT--4o--mini-412991?style=for-the-badge&logo=openai&logoColor=white) |
+| **License** | ![License](https://img.shields.io/badge/License-MIT-4c1?style=for-the-badge) |
+
+---
+
+## Quick Start & Installation (Windows PowerShell)
 
 1. **Clone the repository**:
    ```powershell
@@ -86,7 +86,7 @@ Resume_AI_Bot/
 
 ---
 
-## ⚙️ Environment Configuration
+## Environment Configuration
 
 1. Copy `.env.example` to `.env`:
    ```powershell
@@ -113,7 +113,7 @@ Resume_AI_Bot/
 
 ---
 
-## 🤖 Running the Bots & Services
+## Running the Bots & Services
 
 ### 1. Run Telegram Bot
 Start the Telegram bot polling service:
@@ -130,16 +130,16 @@ Start the web server hosting the REST API and WhatsApp webhook endpoints:
 
 ---
 
-## 📱 User Workflows
+## User Workflows
 
-### ✈️ Telegram Workflow
+### Telegram Workflow
 1. Start chat with your bot on Telegram and send `/start`.
 2. **Send Job Description**: Upload a PDF/DOCX file or paste text. The bot identifies it as a JD.
 3. **Send Resumes**: Upload candidate PDF/DOCX resume(s). The bot updates a consolidated status card (`RESUMES QUEUED FOR ANALYSIS`).
 4. Tap **`[ ⚡ ANALYZE RESUMES NOW ]`** or send `/analyze`.
 5. View detailed analysis cards and the final comparative summary ranking table.
 
-### 💬 WhatsApp Workflow
+### WhatsApp Workflow
 1. Send `/start` or `Hello` to your WhatsApp Business number.
 2. **Send Job Description**: Send text or upload a PDF/DOCX file. The bot identifies it as a Job Description.
 3. **Send Resumes**: Send candidate PDF/DOCX resume(s). The bot queues them and displays total count.
@@ -148,7 +148,7 @@ Start the web server hosting the REST API and WhatsApp webhook endpoints:
 
 ---
 
-## 🔒 Security & Privacy Notice
+## Security & Privacy Notice
 
 - **Isolated Sessions**: User sessions are isolated by Telegram Chat ID and WhatsApp phone number (`wa_id`).
 - **Temporary Buffers**: Uploaded documents are processed in-memory and temporary local buffers.
@@ -156,5 +156,5 @@ Start the web server hosting the REST API and WhatsApp webhook endpoints:
 
 ---
 
-## 📄 License
+## License
 Licensed under the MIT License.
