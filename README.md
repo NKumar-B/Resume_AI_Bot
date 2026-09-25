@@ -1,42 +1,44 @@
 # Resume_AI_Bot - AI Resume & Job Description Matcher
 
-A production-structured, full-stack AI-powered Telegram Bot and FastAPI REST API for multi-resume screening, skill match analysis, weighted match score calculation, ATS-style keyword evaluation, 1-line improvement suggestions, and clickable course recommendations.
----
-
-## Features
-
-- **Multi-Format Job Description Input**: Accepts JD as PDF, DOCX, or pasted plain text message.
-- **Consolidated Multi-Resume Upload**: Upload multiple candidate PDF or DOCX resumes in a single Telegram session without message spam.
-- **Transparent Resume-to-JD Match Score (0–100%)**: Weighted scoring based on skill match (50%), experience (20%), project relevance (15%), education (10%), and ATS alignment (5%).
-- **Detailed Score Basis & Breakdown**: Displays exact points earned for Skill Match (50), Experience (20), Projects (15), Education (10), and ATS Alignment (5).
-- **Matched Skills Identification**: Identifies explicit skills present in both JD and resume.
-- **Skill Mismatch & Gaps**: Highlights missing required skills using neutral wording ("Not found in resume").
-- **Actionable 1-Line Improvement Suggestions**: Exactly 3 concise, single-sentence career improvement recommendations per candidate.
-- **Targeted Course Recommendations**: Exactly 3 relevant learning resources with clickable URLs from reputable providers (Coursera, Udemy, edX, AWS, Microsoft, etc.).
-- **Final Comparative Summary**: Formatted summary table ranking all processed candidates by match score.
-- **Interactive Telegram Buttons**: Tap-to-analyze buttons (`[ ⚡ ANALYZE RESUMES NOW ]`, `[ 🔄 Start New Job Description ]`).
-- **AI Engine with Resilient Fallback**: Supports OpenRouter / OpenAI API (`OPENROUTER_API_KEY`) with an automatic fast heuristic fallback system if AI API rate limits or delays occur.
-- **Decoupled Architecture & REST API**: Core AI analysis engine is independent of Telegram, exposed via FastAPI (`POST /analyze`) for future React/WhatsApp/Discord integrations.
+A production-structured, multi-channel AI-powered platform supporting **Telegram Bot**, **WhatsApp Bot**, and a **FastAPI REST API** for multi-resume screening, automatic document type classification, weighted match score calculation, ATS-style keyword evaluation, 1-line improvement suggestions, and clickable course recommendations.
 
 ---
 
-## Project Structure
+## 🌟 Key Features
 
-```
+- **Multi-Channel Platform**: Simultaneous support for **Telegram Bot**, **WhatsApp Bot**, and **REST API**.
+- **Automatic Document Type Classification**: Smart classifier (`doc_classifier.py`) that automatically identifies whether an uploaded file or text is a **Job Description (JD)** or a **Resume/CV**, ensuring JDs are taken as JDs only and Resumes as Resumes only without state mix-ups.
+- **Multi-Format Document Input**: Accepts JDs and Resumes as PDF, DOCX, or pasted plain text messages.
+- **Consolidated Multi-Resume Upload**: Queue multiple candidate PDF/DOCX resumes per job description without chat spam.
+- **Transparent Match Score (0–100%)**: Weighted scoring based on Skill Match (50%), Experience (20%), Project Relevance (15%), Education (10%), and ATS Alignment (5%).
+- **Matched Skills Identification**: Highlights skills explicitly matched between the resume and job description.
+- **Skill Mismatch & Gap Analysis**: Highlights missing required skills using neutral terminology ("Not found in resume").
+- **Actionable 1-Line Improvement Suggestions**: Exactly 3 single-sentence, highly concise career improvement recommendations per candidate.
+- **Targeted Course Recommendations**: Exactly 3 relevant learning resources with clickable URLs from Coursera, Udemy, edX, AWS, Microsoft, etc.
+- **Final Comparative Summary**: Formatted summary table ranking all candidate resumes by match score.
+- **Resilient AI Engine & Fallback**: OpenRouter / OpenAI API integration (`OPENROUTER_API_KEY`) with an automatic deterministic fallback analyzer if API limits occur.
+
+---
+
+## 📁 Project Structure
+
+```text
 Resume_AI_Bot/
 │
-├── app.py                  # FastAPI application entrypoint & REST API server
-├── telegram_bot.py         # Telegram bot implementation with state machine & inline buttons
+├── app.py                  # FastAPI server & REST API / WhatsApp Webhook endpoints
+├── telegram_bot.py         # Telegram bot handler with state machine & inline buttons
+├── whatsapp_bot.py         # WhatsApp bot handler for Meta Cloud API & Twilio
+├── doc_classifier.py       # Smart classifier for automatic JD vs. Resume identification
 ├── ai_analyzer.py          # Core AI analysis engine (OpenRouter/OpenAI & fallback)
-├── resume_parser.py        # PDF & DOCX resume parser & candidate name detector
-├── jd_parser.py            # Job Description parser & text normalizer
+├── resume_parser.py        # PDF & DOCX resume parser & candidate name extractor
+├── jd_parser.py            # Job Description parser & title extractor
 ├── course_recommender.py   # Course recommendation engine with URL validation
-├── formatter.py            # Telegram HTML formatting for cards & summary tables
-├── config.py               # Environment configuration & validation
+├── formatter.py            # Telegram HTML card & summary table formatter
+├── config.py               # Central environment configuration & validation
 │
-├── uploads/                # Temporary file uploads directory
+├── uploads/                # Temporary file upload directory
 ├── .env                    # Environment variables file (secrets)
-├── .env.example            # Environment variables example template
+├── .env.example            # Environment variables template
 ├── .gitignore              # Git ignore rules
 ├── requirements.txt        # Python package dependencies
 └── README.md               # Project documentation
@@ -44,7 +46,7 @@ Resume_AI_Bot/
 
 ---
 
-## Quick Start & Installation (Windows PowerShell)
+## 🚀 Quick Start & Installation (Windows PowerShell)
 
 1. **Clone the repository**:
    ```powershell
@@ -58,30 +60,33 @@ Resume_AI_Bot/
    .\.venv\Scripts\Activate.ps1
    ```
 
-3. **Install required dependencies**:
+3. **Install dependencies**:
    ```powershell
    pip install -r requirements.txt
    ```
 
 ---
 
-## Environment Configuration
+## ⚙️ Environment Configuration
 
 1. Copy `.env.example` to `.env`:
    ```powershell
    copy .env.example .env
    ```
 
-2. Open `.env` in your text editor and fill in your credentials:
+2. Open `.env` and fill in your API credentials:
    ```ini
-   # Telegram Bot Token (Obtained from @BotFather)
+   # Telegram Bot Token (from @BotFather)
    TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
 
-   # OpenRouter or OpenAI API Key
-   OPENROUTER_API_KEY=your_openrouter_or_openai_api_key_here
+   # WhatsApp Cloud API (Meta WhatsApp Business API)
+   WHATSAPP_API_TOKEN=your_whatsapp_cloud_api_token_here
+   WHATSAPP_PHONE_NUMBER_ID=your_whatsapp_phone_number_id_here
+   WHATSAPP_VERIFY_TOKEN=resume_bot_verify_token
 
-   # Model selection (e.g. openrouter/free or openai/gpt-4o-mini)
-   OPENROUTER_MODEL=openrouter/free
+   # OpenRouter / OpenAI API Key
+   OPENROUTER_API_KEY=your_openrouter_or_openai_api_key_here
+   OPENAI_MODEL=openai/gpt-4o-mini
 
    # Server Port
    PORT=8000
@@ -89,69 +94,48 @@ Resume_AI_Bot/
 
 ---
 
-## How to Create a Telegram Bot
+## 🤖 Running the Bots & Services
 
-1. Open Telegram and search for **@BotFather**.
-2. Send `/newbot` to BotFather.
-3. Choose a name for your bot (e.g., `AI Resume Matcher`).
-4. Choose a username ending in `bot` (e.g., `NithinResumeMatcherBot`).
-5. Copy the HTTP API token provided by BotFather into your `.env` file as `TELEGRAM_BOT_TOKEN`.
-
----
-
-## Running the Application
-
-### Option A: Run Telegram Bot
-To start the Telegram bot in polling mode:
+### 1. Run Telegram Bot
+Start the Telegram bot polling service:
 ```powershell
 .\.venv\Scripts\python.exe telegram_bot.py
 ```
 
-### Option B: Run FastAPI Web Server
-To start the REST API server:
+### 2. Run FastAPI Server (REST API & WhatsApp Webhook)
+Start the web server hosting the REST API and WhatsApp webhook endpoints:
 ```powershell
 .\.venv\Scripts\python.exe app.py
 ```
-*Or using uvicorn directly:*
-```powershell
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
-```
-Access the interactive API documentation at: `http://localhost:8000/docs`
+*Access interactive API documentation at:* `http://localhost:8000/docs`
 
 ---
 
-## Telegram Mobile Workflow
+## 📱 User Workflows
 
-1. Open **Telegram** on your mobile phone and search for your bot (e.g., `@NithinResumeMatcherBot`).
-2. Send **/start** to initialize the session.
-3. **Upload Job Description**: Upload a PDF/DOCX file or paste text directly.
-4. **Upload Resumes**: Use the paperclip icon 📎 to upload candidate PDF or DOCX resume(s). The bot dynamically updates a single status card with file names and count (`RESUMES QUEUED FOR ANALYSIS`).
-5. Tap **`[ ⚡ ANALYZE RESUMES NOW ]`** to execute analysis.
-6. Review each candidate's card (Match Score, Score Breakdown, Matched Skills, Skill Mismatches, 3 Concise 1-Line Suggestions, and 3 Clickable Course Links).
-7. Review the **Final Candidate Comparison Summary Table**.
+### ✈️ Telegram Workflow
+1. Start chat with your bot on Telegram and send `/start`.
+2. **Send Job Description**: Upload a PDF/DOCX file or paste text. The bot identifies it as a JD.
+3. **Send Resumes**: Upload candidate PDF/DOCX resume(s). The bot updates a consolidated status card (`RESUMES QUEUED FOR ANALYSIS`).
+4. Tap **`[ ⚡ ANALYZE RESUMES NOW ]`** or send `/analyze`.
+5. View detailed analysis cards and the final comparative summary ranking table.
 
----
-
-## Security & Privacy Notice
-
-- **Temporary Processing**: Uploaded files are parsed in temporary buffers and are not permanently stored or published.
-- **Session Isolation**: Each Telegram user has an isolated session. Candidate data is never shared across users.
-- **API Keys Protection**: Sensitive keys (`TELEGRAM_BOT_TOKEN`, `OPENROUTER_API_KEY`) are stored in `.env` and ignored by `.gitignore`.
+### 💬 WhatsApp Workflow
+1. Send `/start` or `Hello` to your WhatsApp Business number.
+2. **Send Job Description**: Send text or upload a PDF/DOCX file. The bot identifies it as a Job Description.
+3. **Send Resumes**: Send candidate PDF/DOCX resume(s). The bot queues them and displays total count.
+4. Send `/analyze` to execute AI match analysis.
+5. Receive individual candidate analysis cards and the summary comparison table formatted in WhatsApp Markdown (`*bold*`, `•` bullets).
 
 ---
 
-## Deployment to Render
+## 🔒 Security & Privacy Notice
 
-To deploy this application to Render:
+- **Isolated Sessions**: User sessions are isolated by Telegram Chat ID and WhatsApp phone number (`wa_id`).
+- **Temporary Buffers**: Uploaded documents are processed in-memory and temporary local buffers.
+- **Environment Isolation**: API tokens and keys are loaded securely via `.env` and excluded from git source control.
 
-1. Create a new **Web Service** or **Background Worker** on [Render.com](https://render.com).
-2. Connect your GitHub repository: `https://github.com/NKumar-B/Resume_AI_Bot.git`
-3. Set Environment details:
-   - **Environment**: Python 3
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command (for Telegram Bot)**: `python telegram_bot.py`
-   - **Start Command (for Web API)**: `uvicorn app:app --host 0.0.0.0 --port $PORT`
-4. Add Environment Variables in Render settings:
-   - `TELEGRAM_BOT_TOKEN`
-   - `OPENROUTER_API_KEY`
-   - `OPENROUTER_MODEL`
+---
+
+## 📄 License
+Licensed under the MIT License.
