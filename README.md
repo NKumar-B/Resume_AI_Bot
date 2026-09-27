@@ -9,6 +9,11 @@ A production-structured, multi-channel AI-powered platform supporting **Telegram
 ![OpenAI](https://img.shields.io/badge/OpenAI%2FOpenRouter-GPT--4o--mini-412991?style=flat-square&logo=openai&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-4c1?style=flat-square)
 
+<img width="1912" height="696" alt="image" src="https://github.com/user-attachments/assets/da812406-f6cf-4b8e-9b65-f05f6a9973cf" />
+
+- **Go Live** : https://t.me/NithinResumeMatcherBot
+- **Deployment** : https://resume-ai-bot-v6sm.onrender.com
+
 ---
 
 ## Key Features
