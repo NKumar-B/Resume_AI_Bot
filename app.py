@@ -6,6 +6,7 @@ from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request, Response, BackgroundTasks
 from fastapi.responses import JSONResponse
 import uvicorn
+import threading
 
 from config import PORT, TELEGRAM_BOT_TOKEN, WHATSAPP_API_TOKEN, WHATSAPP_VERIFY_TOKEN, OPENROUTER_API_KEY, validate_config
 from resume_parser import parse_resume
@@ -23,6 +24,34 @@ app = FastAPI(
     description="Production REST API with Telegram & WhatsApp Bot integration for AI Resume Screening.",
     version="1.1.0"
 )
+
+def start_telegram_bot_background():
+    """Start Telegram bot polling in a background thread."""
+    try:
+        from telegram_bot import run_bot
+
+        telegram_thread = threading.Thread(
+            target=run_bot,
+            name="TelegramBot",
+            daemon=True
+        )
+
+        telegram_thread.start()
+        logger.info("✅ Telegram bot started in background thread.")
+
+    except Exception as e:
+        logger.exception(f"❌ Failed to start Telegram bot: {e}")
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Start background services when FastAPI starts."""
+    
+    if TELEGRAM_BOT_TOKEN:
+        start_telegram_bot_background()
+        logger.info("🚀 Telegram bot initialized.")
+    else:
+        logger.warning("⚠️ TELEGRAM_BOT_TOKEN is not configured.")
 
 
 @app.get("/")
