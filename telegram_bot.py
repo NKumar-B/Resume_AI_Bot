@@ -3,6 +3,7 @@ import sys
 import html
 import logging
 import asyncio
+import threading
 from pathlib import Path
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.request import HTTPXRequest
@@ -499,7 +500,7 @@ def build_application():
     return app
 
 
-def run_bot():
+def run_bot(is_background: bool = False):
     """Start Telegram Bot polling mode."""
     try:
         sys.stdout.reconfigure(encoding='utf-8')
@@ -516,7 +517,13 @@ def run_bot():
         app = build_application()
         logger.info("Telegram Bot is running... Press Ctrl+C to stop.")
         print("Telegram Bot is running... Press Ctrl+C to stop.")
-        app.run_polling()
+
+        is_main_thread = (threading.current_thread() is threading.main_thread()) and not is_background
+        if is_main_thread:
+            app.run_polling()
+        else:
+            app.run_polling(stop_signals=None)
+
     except Exception as e:
         err_str = str(e)
         if "FortiGate" in err_str or "Application Control" in err_str or "Application Blocked" in err_str or "2a310b08" in err_str or "NetworkError" in err_str:

@@ -32,6 +32,7 @@ def start_telegram_bot_background():
 
         telegram_thread = threading.Thread(
             target=run_bot,
+            kwargs={"is_background": True},
             name="TelegramBot",
             daemon=True
         )
